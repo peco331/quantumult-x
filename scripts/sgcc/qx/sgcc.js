@@ -117,42 +117,32 @@ function main() {
       }
     );
   } else {
-    // 兼容环境（如其他测试 harness）
-    if (typeof $httpClient !== "undefined" && typeof $httpClient.post === "function") {
-      $httpClient.post(req, function (err, resp, body) {
-        handleResponse(err, resp, body);
-      });
-    } else {
-      console.log("[SGCC] 未检测到 Quantumult X $task 环境");
-      if (typeof $done === "function") $done({});
-    }
+    notify("⚠️ 网上国网签到", "运行环境不支持", "需要 Quantumult X 的 $task 接口");
+    if (typeof $done === "function") $done({});
   }
 }
 
 function handleResponse(err, resp, body) {
   try {
     if (err) {
-      notify("⚠️ 网上国网签到", "网络请求异常", String(err).slice(0, 100));
+      notify("⚠️ 网上国网签到", "网络请求异常", "本次未重试，请稍后在 App 内确认状态");
       return;
     }
 
     let ok = false;
-    let msg = "";
     try {
       const resJson = typeof body === "string" ? JSON.parse(body) : body;
       if (resJson && resJson.encryptData) {
         ok = true;
-      } else if (resJson) {
-        msg = (resJson.message || "未知响应") + (resJson.code ? " [" + resJson.code + "]" : "");
       }
     } catch (e) {
-      msg = "响应解析失败: " + String(body).slice(0, 80);
+      // The raw response may contain credentials; never include it in a notification.
     }
 
     if (ok) {
       notify("✅ 网上国网签到", "今日积分签到完成 ✓", "凭据有效，详细积分请在 App 内查看");
     } else {
-      notify("⚠️ 网上国网签到", "签到未成功（单次执行）", "可能 Cookie/会话已过期。请打开 App 重新抓取 | " + msg);
+      notify("⚠️ 网上国网签到", "签到未确认（单次执行）", "请在 App 内确认状态；会话失效时重新进入签到页抓取");
     }
   } finally {
     if (typeof $done === "function") {

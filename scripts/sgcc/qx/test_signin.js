@@ -54,6 +54,7 @@ setTimeout(() => {
   assert.strictEqual(fetchedRequest.headers.t, "mock_t_val");
   assert.strictEqual(fetchedRequest.headers.userid, "mock_user_12345");
   assert.strictEqual(fetchedRequest.headers.authorization, undefined, "请求头不能包含 authorization");
+  assert.strictEqual(fetchedRequest.method, "POST");
   
   const parsedBody = JSON.parse(fetchedRequest.body);
   assert.strictEqual(parsedBody.data, "test_data_body");
@@ -64,6 +65,7 @@ setTimeout(() => {
   assert.ok(notification, "应收到成功通知");
   assert.ok(notification.title.includes("网上国网签到"), "通知标题正确");
   assert.ok(notification.sub.includes("今日积分签到完成"), "通知内容正确");
+  assert.ok(!JSON.stringify(notification).includes("mock_t_val"));
   assert.strictEqual(doneCalled, true, "done 必须调用");
 
   console.log("sgcc.js 模拟测试全部 PASS");
