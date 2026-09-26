@@ -4,14 +4,18 @@
 
 - 抓取脚本：<https://raw.githubusercontent.com/peco331/quantumult-x/6cf4f4e23d68f59f99df88043dccfa5ff335b4cd/scripts/sgcc/qx/sgcc.capture.js>
 - 签到脚本：<https://raw.githubusercontent.com/peco331/quantumult-x/6cf4f4e23d68f59f99df88043dccfa5ff335b4cd/scripts/sgcc/qx/sgcc.js>
-- 可复制配置：[sgcc.production.snippet](../../rewrites/sgcc.production.snippet)
+- 手工配置参考：[sgcc.production.snippet](../../rewrites/sgcc.production.snippet)
 
-## 导入
+## Quantumult X UI 安装
 
-1. 在 Quantumult X 的现有 `[mitm]` 段，把 `csc-service.sgcc.com.cn` **追加**到已有 `hostname` 列表。保留其他 hostname、证书和密码配置；确认本机根证书已安装并信任，MITM 与 Rewrite 开关已开启。此 hostname 会使 QX 解密该主机流量，但抓取脚本只处理特定签到 URL。
-2. 将交付片段的规则行追加到现有 `[rewrite_local]`，任务行追加到现有 `[task_local]`；不要在原配置中重复创建同名段。任务保持 `enabled=false`。片段中的两个地址均锁定同一自有代码提交。
-3. 在 iPhone 的网上国网 App 登录个人账号，进入「我的 / 积分签到」。App 发起真实签到请求时，抓取脚本将请求体 `data`、`skey` 以及签到执行所需请求头保存于 QX 本地 `$prefs`。看到「签到请求体抓取成功」和「签到凭据抓取成功」说明两部分均已保存。进入页面本身可能完成当日签到。
-4. 在 QX 任务界面找到「网上国网签到(保守版)」并手动运行一次。脚本只向 `https://csc-service.sgcc.com.cn:28630` 发出一笔签到 POST，不重试。通知「今日积分签到完成」表示服务器响应含预期字段；仍应在 App 核对积分状态。确认后再自行决定是否开启 08:30 每日任务。
+1. 在 QX「主机名」UI 添加或确认 `csc-service.sgcc.com.cn`。用户已手动添加时无须重复操作。
+2. 在「资源 → 重写 → + → 资源路径」填入[固定版本重写资源](https://raw.githubusercontent.com/peco331/quantumult-x/bb482d9ce8cbdcc6de1d43f19a783c9ffbf994b8/rewrites/sgcc.rewrite.conf)。此文件只含一条 `script-request-body` 规则，不含任务与 hostname。
+3. 在「HTTP 请求 → 任务仓库 → +」填入[固定版本任务仓库](https://raw.githubusercontent.com/peco331/quantumult-x/bb482d9ce8cbdcc6de1d43f19a783c9ffbf994b8/tasks/sgcc.gallery.json)，导入「网上国网签到(保守版)」。任务配置为每天 08:30、`enabled=false`；导入后检查自动定时确实关闭。
+4. 确认 MITM 根证书已安装并受信任，开启 MITM 与 Rewrite。
+5. 在 iPhone 的网上国网 App 登录个人账号，进入「我的 → 积分签到」。进入页面本身可能完成当日签到。
+6. 等待「签到请求体抓取成功」和「签到凭据抓取成功」；请求体和凭据仅保存在 QX 本地 `$prefs`。Cookie 失效时重新进入该页抓取。
+7. 在 QX 任务界面手动运行「网上国网签到(保守版)」。脚本只发一笔签到 POST，不重试。
+8. 「今日积分签到完成 ✓」表示响应含预期字段；再到 App 核对积分状态，之后才决定是否开启自动定时。
 
 ## 失效与风险
 
