@@ -19,12 +19,14 @@ GitHub 仓库：<https://github.com/peco331/quantumult-x>。
 2. 在「资源 → 重写 → + → 资源路径」添加[SGCC 重写资源](https://raw.githubusercontent.com/peco331/quantumult-x/bb482d9ce8cbdcc6de1d43f19a783c9ffbf994b8/rewrites/sgcc.rewrite.conf)。它仅匹配网上国网的签到请求体。
 3. 在「HTTP 请求 → 任务仓库 → +」添加[SGCC 任务仓库](https://raw.githubusercontent.com/peco331/quantumult-x/bb482d9ce8cbdcc6de1d43f19a783c9ffbf994b8/tasks/sgcc.gallery.json)，从仓库导入「网上国网签到(保守版)」。仓库条目写有 `enabled=false`；导入后仍请在 UI 确认自动定时处于关闭状态。
 4. 确认本机 MITM 证书已安装并受信任，开启 MITM 和 Rewrite。
-5. 打开网上国网「我的 → 积分签到」。
-6. 等待「签到请求体抓取成功」与「签到凭据抓取成功」两条通知。凭据只保存在 QX 本地；Cookie 失效时重新进入此页抓取。
-7. 在 QX 任务界面手动运行「网上国网签到(保守版)」。
+5. 在**尚未签到的当天**打开网上国网「我的 → 积分签到」；若页面要求手动点击签到，只点一次。当天已显示「已签到」且 QX 网络活动没有 `/osg-omgmt1042/member/m1/0103514` 请求时，没有可抓取的签到请求，等下一个未签到日，不要重复发起签到。
+6. 确认 QX 网络活动出现该签到请求，并等待「签到请求体抓取成功」与「签到凭据抓取成功」两条通知。凭据只保存在 QX 本地；Cookie 失效时在未签到时重新抓取。若实际签到路径不同，只核对路径，不发送请求头、请求体或 Cookie。
+7. 确认 QX 持久化数据中存在 `sgcc_data`、`sgcc_signin` 两个键；不要分享键值。抓取当天若 App 已显示「已签到」，不要再运行任务。等下一个尚未签到日，在打开签到页前，于任务界面手动运行「网上国网签到(保守版)」。任务脚本不写控制台日志，空日志不能判定执行失败。
 8. 看到「今日积分签到完成 ✓」后，再到 App 核对积分；随后自行决定是否开启每天 08:30 自动执行。
 
 远程重写采用 [Quantumult X 官方纯文本资源示例](https://github.com/crossutility/Quantumult-X/blob/master/sample-import-rewrite.snippet)的规则行格式；任务仓库采用[官方 Gallery JSON 示例](https://github.com/crossutility/Quantumult-X/blob/master/gallery.json)的 `name`、`task`、`description` 结构。`img-url`、`addons` 均非本任务所需，故未添加。固定 commit 的 GitHub raw 地址直接提供纯文本/JSON；首次 UI 导入是否成功仍须在 iPhone 上确认。
+
+首次抓取排障：资源详情显示一条已启用的规则，仅证明规则已加载；还须有实际签到 URL 命中。QX 网络活动中的同主机其他接口（例如 `/osg-omgmt1042/member/c1/q034990`）不会触发此精准重写。若尚未抓取就运行任务，脚本会通知「缺少凭据或签到数据」，但日志仍可能为空。
 
 ## 目录组织
 
