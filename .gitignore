@@ -1,0 +1,23 @@
+# Secrets and sensitive credentials
+*.p12
+*.pfx
+*.pem
+*.key
+*.crt
+*.cer
+*.mobileconfig
+*.conf_private
+*.private.conf
+*_private.conf
+*.secrets.*
+*_secrets.*
+secrets/
+captures/private/
+*.log
+
+# Operating system & temporary files
+.DS_Store
+Thumbs.db
+node_modules/
+dist/
+tmp/
