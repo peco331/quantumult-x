@@ -19,10 +19,12 @@
 2. 「资源 → 重写 → + → 资源路径」添加[单规则重写资源](https://raw.githubusercontent.com/peco331/quantumult-x/bb482d9ce8cbdcc6de1d43f19a783c9ffbf994b8/rewrites/sgcc.rewrite.conf)。
 3. 「HTTP 请求 → 任务仓库 → +」添加[单任务 Gallery JSON](https://raw.githubusercontent.com/peco331/quantumult-x/bb482d9ce8cbdcc6de1d43f19a783c9ffbf994b8/tasks/sgcc.gallery.json)，导入后确认自动执行关闭。
 4. 开启 MITM 与 Rewrite，并确认根证书受信任。
-5. 打开网上国网「我的 → 积分签到」。
-6. 等待「签到请求体抓取成功」与「签到凭据抓取成功」。凭据仅保存在 QX 本地；Cookie 失效时重新进入该页抓取。
-7. 在任务界面手动运行「网上国网签到(保守版)」。
+5. 在尚未签到的当天打开网上国网「我的 → 积分签到」；需要点击签到时只点一次。若已显示「已签到」且 QX 网络活动中没有 `/osg-omgmt1042/member/m1/0103514`，等下一个未签到日，不重复请求。
+6. 确认该签到请求出现，并等待「签到请求体抓取成功」与「签到凭据抓取成功」。凭据仅保存在 QX 本地；Cookie 失效时在未签到时重新抓取。
+7. 确认本地持久化数据中已有 `sgcc_data`、`sgcc_signin` 两个键；不要分享键值。若抓取当天 App 已显示「已签到」，不要再运行任务。等下一个尚未签到日，在打开签到页前手动运行「网上国网签到(保守版)」。
 8. 收到「今日积分签到完成 ✓」后到 App 核对，再决定是否开启每天 08:30 的自动定时。
+
+任务脚本没有控制台日志输出；空日志本身不能证明成功或失败。未抓到凭据时，脚本应通知「缺少凭据或签到数据」。
 
 格式依据：[Quantumult X 官方重写资源示例](https://github.com/crossutility/Quantumult-X/blob/master/sample-import-rewrite.snippet)、[官方任务仓库示例](https://github.com/crossutility/Quantumult-X/blob/master/gallery.json)、[官方 URL Scheme 文档](https://github.com/crossutility/Quantumult-X/blob/master/url-scheme.md)。Gallery 顶层使用 `name`、`task`、`description`；单任务用 `config` 字符串承载 cron、脚本 URL、`tag` 和 `enabled=false`。图标的字段名为 `img-url`，本任务未使用；`addons` 也未使用。GitHub raw 端点返回资源原文，实际 QX UI 导入仍需手机侧确认。
 
