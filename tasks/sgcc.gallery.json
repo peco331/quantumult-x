@@ -1,0 +1,9 @@
+{
+  "name": "网上国网",
+  "description": "首次须先在网上国网进入“我的 → 积分签到”完成凭据抓取；凭据仅保存在 Quantumult X 本地。建议导入后先手动运行验证，成功后再决定是否开启自动定时。Cookie 失效时重新进入签到页抓取。这是保守单次请求版本。",
+  "task": [
+    {
+      "config": "30 8 * * * https://raw.githubusercontent.com/peco331/quantumult-x/6cf4f4e23d68f59f99df88043dccfa5ff335b4cd/scripts/sgcc/qx/sgcc.js, tag=网上国网签到(保守版), enabled=false"
+    }
+  ]
+}

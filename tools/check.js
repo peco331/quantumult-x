@@ -95,4 +95,53 @@ if (snippetContent.includes("/main/") || lines.some(line => line.trim() === "[mi
   process.exit(1);
 }
 console.log("PASS: rewrites/sgcc.production.snippet 固定版本与默认关闭检查通过");
+
+console.log("\n=== 4. Quantumult X UI 资源检查 ===");
+const rewriteFile = path.join(ROOT, "rewrites/sgcc.rewrite.conf");
+const rewriteContent = fs.readFileSync(rewriteFile, "utf8");
+const rewriteLines = rewriteContent.split(/\r?\n/).filter(line => line.trim() && !line.trim().startsWith(";"));
+const pinnedCapture = base + "sgcc.capture.js";
+if (rewriteContent.charCodeAt(0) === 0xfeff || rewriteLines.length !== 1 ||
+    rewriteLines[0].includes("[rewrite_local]") || rewriteContent.includes("[task_local]") ||
+    rewriteContent.includes("hostname =") ||
+    !rewriteLines[0].endsWith(" url script-request-body " + pinnedCapture)) {
+  console.error("FAIL: 远程重写资源必须只有一条固定版本的请求体规则");
+  process.exit(1);
+}
+const remotePattern = rewriteLines[0].split(" url script-request-body ")[0];
+const remoteMatcher = new RegExp(remotePattern);
+if (!remoteMatcher.test(target) || !remoteMatcher.test(target + "?from=app") ||
+    remoteMatcher.test(target + "/other") ||
+    remoteMatcher.test("https://other.example/osg-omgmt1042/member/m1/0103514") ||
+    remoteMatcher.test("https://csc-serviceXsgcc.com.cn:28630/osg-omgmt1042/member/m1/0103514")) {
+  console.error("FAIL: 远程重写规则匹配范围异常");
+  process.exit(1);
+}
+
+const galleryFile = path.join(ROOT, "tasks/sgcc.gallery.json");
+const galleryContent = fs.readFileSync(galleryFile, "utf8");
+let gallery;
+try {
+  gallery = JSON.parse(galleryContent);
+} catch (err) {
+  console.error("FAIL: 任务仓库 JSON 无法解析", err.message);
+  process.exit(1);
+}
+const pinnedTask = base + "sgcc.js";
+if (galleryContent.charCodeAt(0) === 0xfeff ||
+    Object.keys(gallery).sort().join(",") !== "description,name,task" ||
+    !gallery.name || !gallery.description || !Array.isArray(gallery.task) ||
+    gallery.task.length !== 1 ||
+    Object.keys(gallery.task[0]).join(",") !== "config" ||
+    gallery.task[0].config !== "30 8 * * * " + pinnedTask +
+      ", tag=网上国网签到(保守版), enabled=false" ||
+    !gallery.description.includes("凭据仅保存在 Quantumult X 本地")) {
+  console.error("FAIL: 任务仓库结构、固定脚本、时刻或默认关闭状态异常");
+  process.exit(1);
+}
+if ([rewriteContent, galleryContent].some(content => /\/(?:main|master|latest)\//i.test(content))) {
+  console.error("FAIL: UI 资源中存在浮动脚本引用");
+  process.exit(1);
+}
+console.log("PASS: 单条重写规则和单任务 Gallery JSON 均为固定版本");
 console.log("\n所有离线静态校验均通过！");
