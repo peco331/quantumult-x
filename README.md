@@ -2,6 +2,15 @@
 
 本项目为本机 Quantumult X（iOS）的正式配置、自研与自裁脚本、分流/重写规则、审计及维护工程。遵循全局工程规范与 Project-Control 治理基线。
 
+GitHub 仓库：<https://github.com/peco331/quantumult-x>。
+当前 SGCC 生产脚本锁定本仓库提交 `6cf4f4e23d68f59f99df88043dccfa5ff335b4cd`；交付配置见 [rewrites/sgcc.production.snippet](rewrites/sgcc.production.snippet)。这是脚本代码提交，交付文档提交会晚于它。使用固定提交是为了避免后续 `main` 变化未经审计就进入手机。
+上游 `MaYIHEI/paperclip` 固定提交为 `cbb3c47746ae633d1f818a21a6f1a5af7fda2d10`。
+
+固定脚本 URL：
+
+- 抓取：<https://raw.githubusercontent.com/peco331/quantumult-x/6cf4f4e23d68f59f99df88043dccfa5ff335b4cd/scripts/sgcc/qx/sgcc.capture.js>
+- 签到：<https://raw.githubusercontent.com/peco331/quantumult-x/6cf4f4e23d68f59f99df88043dccfa5ff335b4cd/scripts/sgcc/qx/sgcc.js>
+
 ## 目录组织
 
 - `config/`：Quantumult X 配置文件、模块及片段模板

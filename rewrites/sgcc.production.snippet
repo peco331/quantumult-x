@@ -1,0 +1,9 @@
+; Append these entries to the existing Quantumult X sections.
+; Add csc-service.sgcc.com.cn to the existing [mitm] hostname list separately.
+; Scripts are pinned to the audited local code commit below.
+
+[rewrite_local]
+^https?:\/\/csc-service\.sgcc\.com\.cn:28630\/osg-omgmt1042\/member\/m1\/0103514(?:\?.*)?$ url script-request-body https://raw.githubusercontent.com/peco331/quantumult-x/6cf4f4e23d68f59f99df88043dccfa5ff335b4cd/scripts/sgcc/qx/sgcc.capture.js
+
+[task_local]
+30 8 * * * https://raw.githubusercontent.com/peco331/quantumult-x/6cf4f4e23d68f59f99df88043dccfa5ff335b4cd/scripts/sgcc/qx/sgcc.js, tag=网上国网签到(保守版), enabled=false
