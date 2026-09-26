@@ -1,89 +1,18 @@
-# 网上国网 (SGCC) Quantumult X 积分每日签到
+# 网上国网 Quantumult X 签到
 
-本模块提供国家电网官方「网上国网」App（95598）积分每日自动签到功能。经本地深度安全加固，采用最小权限匹配与严格本地存储。
+仓库：<https://github.com/peco331/quantumult-x>。上游原版来自 `MaYIHEI/paperclip` 的 `cbb3c47746ae633d1f818a21a6f1a5af7fda2d10`，存于 `upstream/`；本项目审计及加固见 [AUDIT.md](AUDIT.md)。生产脚本固定到自有提交 `6cf4f4e23d68f59f99df88043dccfa5ff335b4cd`，不会随 `main` 更新而自动改变。
 
-## 目录结构
+- 抓取脚本：<https://raw.githubusercontent.com/peco331/quantumult-x/6cf4f4e23d68f59f99df88043dccfa5ff335b4cd/scripts/sgcc/qx/sgcc.capture.js>
+- 签到脚本：<https://raw.githubusercontent.com/peco331/quantumult-x/6cf4f4e23d68f59f99df88043dccfa5ff335b4cd/scripts/sgcc/qx/sgcc.js>
+- 可复制配置：[sgcc.production.snippet](../../rewrites/sgcc.production.snippet)
 
-```text
-scripts/sgcc/
-├── upstream/          # 上游原版快照 (commit cbb3c47, 2026-06-22)
-│   ├── README.md
-│   ├── sgcc.cookie.js
-│   ├── sgcc.js
-│   └── sgcc.plugin
-├── qx/                # Quantumult X 最小权限保守版本
-│   ├── sgcc.capture.js # 精准抓取脚本（仅拦截实际签到请求，剔除 authorization）
-│   ├── sgcc.js        # 每日签到执行脚本（单次请求，无重试，本地 SM3 签名）
-│   ├── test_capture.js# 本地模拟单元测试
-│   └── test_signin.js # 本地模拟单元测试
-├── README.md          # 模块说明与使用指引
-└── AUDIT.md           # 深入安全审计、差异对比与风控说明
-```
+## 导入
 
-## 核心加固特性
+1. 在 Quantumult X 的现有 `[mitm]` 段，把 `csc-service.sgcc.com.cn` **追加**到已有 `hostname` 列表。保留其他 hostname、证书和密码配置；确认本机根证书已安装并信任，MITM 与 Rewrite 开关已开启。此 hostname 会使 QX 解密该主机流量，但抓取脚本只处理特定签到 URL。
+2. 将交付片段的规则行追加到现有 `[rewrite_local]`，任务行追加到现有 `[task_local]`；不要在原配置中重复创建同名段。任务保持 `enabled=false`。片段中的两个地址均锁定同一自有代码提交。
+3. 在 iPhone 的网上国网 App 登录个人账号，进入「我的 / 积分签到」。App 发起真实签到请求时，抓取脚本将请求体 `data`、`skey` 以及签到执行所需请求头保存于 QX 本地 `$prefs`。看到「签到请求体抓取成功」和「签到凭据抓取成功」说明两部分均已保存。进入页面本身可能完成当日签到。
+4. 在 QX 任务界面找到「网上国网签到(保守版)」并手动运行一次。脚本只向 `https://csc-service.sgcc.com.cn:28630` 发出一笔签到 POST，不重试。通知「今日积分签到完成」表示服务器响应含预期字段；仍应在 App 核对积分状态。确认后再自行决定是否开启 08:30 每日任务。
 
-1. **窄匹配拦截**：仅匹配 `/osg-omgmt1042/member/m1/0103514`，绝不宽泛抓取整个会员模块；
-2. **剔除敏感授权头**：自动剥离 `authorization` 等高危字段，仅在本地存储签到网关必需的设备及会话参数；
-3. **零连续重试**：每日执行只发 1 次正式请求，从根源防范账号风控；
-4. **安全本地化**：所有凭据与签名参数仅在 Quantumult X 本机持久化空间（`$prefs`）存储，不设第三方远程依赖；
-5. **手动门禁**：定时任务默认关闭（`enabled=false`），必须经手动验证通过后方可激活。
+## 失效与风险
 
----
-
-## Quantumult X 部署与验证步骤
-
-### 第一步：配置 MITM 解密
-
-在 Quantumult X 配置文件 `[mitm]` 段中加入国网网关域名（若已开启可直接在 UI 界面添加）：
-
-```ini
-[mitm]
-hostname = csc-service.sgcc.com.cn
-```
-
-> **前置条件**：确保已在 Quantumult X 设置中生成并信任了本地根证书，且开启了 MitM 开关。
-
-### 第二步：添加重写抓取规则 (rewrite_local)
-
-将精准抓取规则添加到 `[rewrite_local]`：
-
-```ini
-[rewrite_local]
-^https?:\/\/csc-service\.sgcc\.com\.cn:28630\/osg-omgmt1042\/member\/m1\/0103514 url script-request-body https://raw.githubusercontent.com/local-placeholder/quantumult-x/main/scripts/sgcc/qx/sgcc.capture.js
-```
-*(若使用本地调试，可将路径替换为您 QX 本地文件或 iCloud 映射路径，例如 `scripts/sgcc/qx/sgcc.capture.js`)*
-
-### 第三步：手动进入 App 触发凭据捕获
-
-1. 手机打开 Quantumult X，确认 MitM 与 Rewrite 开关已开启；
-2. 打开手机上的「网上国网」App，登录您的账号；
-3. 点击底部菜单「我的」→ 点击顶部「积分签到」或进入签到页面；
-4. 进入页面时，App 会自动向服务器提交签到，此时 QX 重写脚本将精确命中请求，并弹出通知：
-   - `✅ 网上国网: 签到请求体抓取成功`
-   - `✅ 网上国网: Cookie 凭证抓取成功`
-5. 若收到上述通知，代表本地持久化凭据捕获成功。
-
-### 第四步：手动执行签到脚本验证
-
-在启用每日定时任务前，必须先进行手动触发测试：
-
-1. 在 Quantumult X 配置文件 `[task_local]` 中加入任务行（默认 `enabled=false`）：
-
-```ini
-[task_local]
-30 8 * * * https://raw.githubusercontent.com/local-placeholder/quantumult-x/main/scripts/sgcc/qx/sgcc.js, tag=网上国网签到(保守版), img-url=https://raw.githubusercontent.com/MaYIHEI/pin/refs/heads/main/app/sgcc.png, enabled=false
-```
-
-2. 打开 Quantumult X App → 点击底部进入配置界面 → 找到 **Task** 列表；
-3. 找到「网上国网签到(保守版)」，**向左滑动**该条目，点击弹出的 **执行 / 运行 (Play)** 按钮；
-4. 观察系统通知与执行日志：
-   - 收到 `✅ 网上国网签到: 今日积分签到完成 ✓` 说明本地签名算法与凭证均有效；
-   - 验证无误后，方可在 UI 中将该任务的开关切换为 **开启 (enabled=true)**。
-
----
-
-## 凭据失效处理指引
-
-- **有效期**：网上国网会话凭证通常有效期为 4 至 5 天；
-- **失效表现**：脚本执行后收到通知 `⚠️ 网上国网签到: 签到未成功（单次执行）| 可能 Cookie/会话已过期`；
-- **恢复方法**：无需修改任何配置，也切勿反复手动点击。只需在手机上打开「网上国网」App，重新进入一次「我的 / 积分签到」页面，重写抓取脚本将自动更新本地存储的有效凭据。
+若出现「签到未确认」或缺少凭据通知，先在 App 核对当日状态；确认会话失效后重新登录并进入积分签到页抓取，避免反复手动请求。凭据有效期由服务端决定，不能保证固定天数。自动化签到可能触发服务端风控或与服务条款冲突，最终是否使用由账号持有人判断。QX 的 MITM 根证书与本地 `$prefs` 数据需保护；不要导出、同步或提交含实际凭据的配置和抓包。

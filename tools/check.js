@@ -56,10 +56,10 @@ scanDir(ROOT);
 console.log("PASS: 零敏感凭据泄漏检查通过");
 
 console.log("\n=== 3. Quantumult X 规则片段检查 ===");
-const snippetFile = path.join(ROOT, "rewrites/sgcc.snippet");
+const snippetFile = path.join(ROOT, "rewrites/sgcc.production.snippet");
 const snippetContent = fs.readFileSync(snippetFile, "utf8");
 
-const requiredSections = ["[mitm]", "[rewrite_local]", "[task_local]"];
+const requiredSections = ["[rewrite_local]", "[task_local]"];
 requiredSections.forEach(sec => {
   if (!snippetContent.includes(sec)) {
     console.error("FAIL: 缺失必需段落: " + sec);
@@ -72,5 +72,27 @@ if (snippetContent.includes("[MITM]") || snippetContent.includes("[Rewrite]") ||
   process.exit(1);
 }
 
-console.log("PASS: rewrites/sgcc.snippet 格式与段落合法");
+const pin = "6cf4f4e23d68f59f99df88043dccfa5ff335b4cd";
+const base = "https://raw.githubusercontent.com/peco331/quantumult-x/" + pin + "/scripts/sgcc/qx/";
+const lines = snippetContent.split(/\r?\n/);
+const rewrite = lines.find(line => line.includes("url script-request-body"));
+const task = lines.find(line => line.startsWith("30 8 * * * "));
+if (!rewrite || !task || !rewrite.endsWith(base + "sgcc.capture.js") ||
+    task !== "30 8 * * * " + base + "sgcc.js, tag=网上国网签到(保守版), enabled=false") {
+  console.error("FAIL: 生产脚本未锁定同一个代码提交");
+  process.exit(1);
+}
+const pattern = rewrite.split(" url script-request-body ")[0];
+const matcher = new RegExp(pattern);
+const target = "https://csc-service.sgcc.com.cn:28630/osg-omgmt1042/member/m1/0103514";
+if (!matcher.test(target) || !matcher.test(target + "?test=1") ||
+    matcher.test(target + "/other") || matcher.test("https://other.example/osg-omgmt1042/member/m1/0103514")) {
+  console.error("FAIL: 重写规则范围异常");
+  process.exit(1);
+}
+if (snippetContent.includes("/main/") || lines.some(line => line.trim() === "[mitm]")) {
+  console.error("FAIL: 生产片段有浮动引用、启用任务或独立 MITM 段");
+  process.exit(1);
+}
+console.log("PASS: rewrites/sgcc.production.snippet 固定版本与默认关闭检查通过");
 console.log("\n所有离线静态校验均通过！");
