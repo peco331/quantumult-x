@@ -13,7 +13,7 @@
 
 const KEY_HDR = "sgcc_data";
 const KEY_ENV = "sgcc_signin";
-const SIGNIN_PATH = "/osg-omgmt1042/member/m1/0103514";
+const SIGNIN_URL = /^https:\/\/csc-service\.sgcc\.com\.cn:28630\/osg-omgmt1042\/member\/m1\/0103514(?:\?.*)?$/;
 
 // 仅保留签到接口与服务网关实际需要的最小字段白名单（已排除 authorization 等字段）
 const ALLOWED_HEADERS = [
@@ -65,10 +65,7 @@ function main() {
   try {
     const url = $request.url || "";
     // 门禁 1：严格匹配实际签到请求路径，非该接口直接跳过
-    if (url.indexOf(SIGNIN_PATH) === -1) {
-      if (typeof $done === "function") $done({});
-      return;
-    }
+    if (!SIGNIN_URL.test(url)) return;
 
     const headers = $request.headers || {};
     const lowHeaders = {};
@@ -80,16 +77,12 @@ function main() {
 
     // 1. 抓取请求体 (data 与 skey)
     let bodyCaptured = false;
-    let hadEnv = !!readVal(KEY_ENV);
+    const hadEnv = !!readVal(KEY_ENV);
     if ($request.body) {
       try {
         const bodyObj = typeof $request.body === "string" ? JSON.parse($request.body) : $request.body;
         if (bodyObj && bodyObj.data && bodyObj.skey) {
-          const envData = {
-            data: bodyObj.data,
-            skey: bodyObj.skey,
-            path: SIGNIN_PATH
-          };
+          const envData = { data: bodyObj.data, skey: bodyObj.skey };
           writeVal(JSON.stringify(envData), KEY_ENV);
           bodyCaptured = true;
           if (!hadEnv) {
@@ -117,19 +110,15 @@ function main() {
           picked[k] = lowHeaders[k];
         }
       });
-      picked._updatedAt = Date.now();
-
       writeVal(JSON.stringify(picked), KEY_HDR);
 
       // 仅在凭据首次抓取或更新时发出通知
       if (t !== prevT) {
-        const uidMask = uid.length > 8 ? uid.slice(0, 4) + "…" + uid.slice(-4) : uid;
-        const tMask = t.length > 8 ? t.slice(0, 4) + "…" + t.slice(-4) : "***";
-        notify("✅ 网上国网", "Cookie 凭证抓取成功", "账号: " + uidMask + " | 凭据已更新（最小权限）");
+        notify("✅ 网上国网", "签到凭据抓取成功", "已更新 Quantumult X 本地存储");
       }
     }
   } catch (err) {
-    notify("⚠️ 网上国网", "抓取脚本异常", (err && err.message) || String(err));
+    notify("⚠️ 网上国网", "抓取脚本异常", "请检查 Quantumult X 的脚本配置");
   } finally {
     if (typeof $done === "function") {
       $done({});
