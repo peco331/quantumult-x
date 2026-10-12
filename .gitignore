@@ -21,3 +21,10 @@ Thumbs.db
 node_modules/
 dist/
 tmp/
+
+.env
+.env.*
+!.env.example
+!.env.template
+gitleaks-report*.json
+__pycache__/
