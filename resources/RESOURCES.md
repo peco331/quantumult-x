@@ -6,8 +6,8 @@
 
 自有公开仓库：<https://github.com/peco331/quantumult-x>。生产脚本提交：`6cf4f4e23d68f59f99df88043dccfa5ff335b4cd`。
 
-- 抓取脚本：<https://raw.githubusercontent.com/peco331/quantumult-x/6cf4f4e23d68f59f99df88043dccfa5ff335b4cd/scripts/sgcc/qx/sgcc.capture.js>
-- 签到脚本：<https://raw.githubusercontent.com/peco331/quantumult-x/6cf4f4e23d68f59f99df88043dccfa5ff335b4cd/scripts/sgcc/qx/sgcc.js>
+- 抓取脚本：<https://raw.githubusercontent.com/peco331/quantumult-x/bc7f1b117d2270a9b4d4dc5912ada6f322d9d7c2/scripts/sgcc/qx/sgcc.capture.js>
+- 签到脚本：<https://raw.githubusercontent.com/peco331/quantumult-x/bc7f1b117d2270a9b4d4dc5912ada6f322d9d7c2/scripts/sgcc/qx/sgcc.js>
 
 自有版限制抓取至单一签到接口、移除 `authorization`、仅存本机 `$prefs`、每次执行单次 POST，任务默认关闭。固定提交防止 `main` 后续更新自动改变 QX 正在执行的敏感脚本。
 
@@ -16,8 +16,8 @@
 两个 UI 资源固定到资源提交 `bb482d9ce8cbdcc6de1d43f19a783c9ffbf994b8`，引用的 SGCC 业务脚本仍固定到 `6cf4f4e23d68f59f99df88043dccfa5ff335b4cd`。
 
 1. 「主机名」UI 添加或确认 `csc-service.sgcc.com.cn`；它不由重写资源重复添加。
-2. 「资源 → 重写 → + → 资源路径」添加[单规则重写资源](https://raw.githubusercontent.com/peco331/quantumult-x/bb482d9ce8cbdcc6de1d43f19a783c9ffbf994b8/rewrites/sgcc.rewrite.conf)。
-3. 「HTTP 请求 → 任务仓库 → +」添加[单任务 Gallery JSON](https://raw.githubusercontent.com/peco331/quantumult-x/bb482d9ce8cbdcc6de1d43f19a783c9ffbf994b8/tasks/sgcc.gallery.json)，导入后确认自动执行关闭。
+2. 「资源 → 重写 → + → 资源路径」添加[单规则重写资源](https://raw.githubusercontent.com/peco331/quantumult-x/5a7ec63500f400f7b7cf9f3c308b3f8ca0dcd9d7/rewrites/sgcc.rewrite.conf)。
+3. 「HTTP 请求 → 任务仓库 → +」添加[单任务 Gallery JSON](https://raw.githubusercontent.com/peco331/quantumult-x/5a7ec63500f400f7b7cf9f3c308b3f8ca0dcd9d7/tasks/sgcc.gallery.json)，导入后确认自动执行关闭。
 4. 开启 MITM 与 Rewrite，并确认根证书受信任。
 5. 在尚未签到的当天打开网上国网「我的 → 积分签到」；需要点击签到时只点一次。若已显示「已签到」且 QX 网络活动中没有 `/osg-omgmt1042/member/m1/0103514`，等下一个未签到日，不重复请求。
 6. 确认该签到请求出现，并等待「签到请求体抓取成功」与「签到凭据抓取成功」。凭据仅保存在 QX 本地；Cookie 失效时在未签到时重新抓取。
