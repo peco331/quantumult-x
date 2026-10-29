@@ -1,6 +1,6 @@
 # 网上国网 Quantumult X 签到
 
-仓库：<https://github.com/peco331/quantumult-x>。上游原版来自 `MaYIHEI/paperclip` 的 `cbb3c47746ae633d1f818a21a6f1a5af7fda2d10`，存于 `upstream/`；本项目审计及加固见 [AUDIT.md](AUDIT.md)。生产脚本固定到自有提交 `6cf4f4e23d68f59f99df88043dccfa5ff335b4cd`，不会随 `main` 更新而自动改变。
+仓库：<https://github.com/peco331/quantumult-x>。上游原版来自 `MaYIHEI/paperclip` 的 `cbb3c47746ae633d1f818a21a6f1a5af7fda2d10`，存于 `upstream/`；本项目审计及加固见 [AUDIT.md](AUDIT.md)。生产脚本固定到自有提交 `bc7f1b117d2270a9b4d4dc5912ada6f322d9d7c2`，不会随 `main` 更新而自动改变。
 
 - 抓取脚本：<https://raw.githubusercontent.com/peco331/quantumult-x/bc7f1b117d2270a9b4d4dc5912ada6f322d9d7c2/scripts/sgcc/qx/sgcc.capture.js>
 - 签到脚本：<https://raw.githubusercontent.com/peco331/quantumult-x/bc7f1b117d2270a9b4d4dc5912ada6f322d9d7c2/scripts/sgcc/qx/sgcc.js>
@@ -9,8 +9,8 @@
 ## Quantumult X UI 安装
 
 1. 在 QX「主机名」UI 添加或确认 `csc-service.sgcc.com.cn`。用户已手动添加时无须重复操作。
-2. 在「资源 → 重写 → + → 资源路径」填入[固定版本重写资源](https://raw.githubusercontent.com/peco331/quantumult-x/5a7ec63500f400f7b7cf9f3c308b3f8ca0dcd9d7/rewrites/sgcc.rewrite.conf)。此文件只含一条 `script-request-body` 规则，不含任务与 hostname。
-3. 在「HTTP 请求 → 任务仓库 → +」填入[固定版本任务仓库](https://raw.githubusercontent.com/peco331/quantumult-x/5a7ec63500f400f7b7cf9f3c308b3f8ca0dcd9d7/tasks/sgcc.gallery.json)，导入「网上国网签到(保守版)」。任务配置为每天 08:30、`enabled=false`；导入后检查自动定时确实关闭。
+2. 在「资源 → 重写 → + → 资源路径」填入[固定版本重写资源](https://raw.githubusercontent.com/peco331/quantumult-x/604815b755f36e87db6704d401c47b3f4f789d44/rewrites/sgcc.rewrite.conf)。此文件只含一条 `script-request-body` 规则，不含任务与 hostname。
+3. 在「HTTP 请求 → 任务仓库 → +」填入[固定版本任务仓库](https://raw.githubusercontent.com/peco331/quantumult-x/604815b755f36e87db6704d401c47b3f4f789d44/tasks/sgcc.gallery.json)，导入「网上国网签到(保守版)」。任务配置为每天 08:30、`enabled=false`；导入后检查自动定时确实关闭。
 4. 确认 MITM 根证书已安装并受信任，开启 MITM 与 Rewrite。
 5. 在**尚未签到的当天**进入网上国网「我的 → 积分签到」；若需要点击签到，只点一次。若页面已显示「已签到」，且 QX 网络活动没有 `/osg-omgmt1042/member/m1/0103514`，当天没有可抓取的签到提交请求，等下一个未签到日，不要重复请求。
 6. 先确认 QX 网络活动出现上述签到 URL，再等待「签到请求体抓取成功」和「签到凭据抓取成功」；数据仅保存在 QX 本地 `$prefs`。Cookie 失效时在未签到时重新抓取。若实际签到路径不同，只核对路径，不分享请求头、请求体或 Cookie。

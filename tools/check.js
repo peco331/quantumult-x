@@ -72,7 +72,7 @@ if (snippetContent.includes("[MITM]") || snippetContent.includes("[Rewrite]") ||
   process.exit(1);
 }
 
-const pin = "6cf4f4e23d68f59f99df88043dccfa5ff335b4cd";
+const pin = "bc7f1b117d2270a9b4d4dc5912ada6f322d9d7c2";
 const base = "https://raw.githubusercontent.com/peco331/quantumult-x/" + pin + "/scripts/sgcc/qx/";
 const lines = snippetContent.split(/\r?\n/);
 const rewrite = lines.find(line => line.includes("url script-request-body"));
